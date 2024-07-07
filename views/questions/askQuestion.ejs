@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ask Question</title>
+    <link rel="stylesheet" href="register.css" />
+  </head>
+  <body>
+    <%-include("../components/navbar")%>
+
+    <form action="/askquestion" method="post" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Enter the title  " />
+      <input type="file" name="image" />
+      <textarea
+        name="description"
+        placeholder="Get your Thought On It"
+        cols="40"
+        rows="30"
+      ></textarea>
+
+      <input type="submit" value="Ask Question" />
+    </form>
+  </body>
+</html>
