@@ -36,7 +36,7 @@ exports.handleregister = async (req, res) => {
     email,
     password: bcrypt.hashSync(password, 11),
   });
-  res.send("registered successfully");
+  res.redirect("/login");
 };
 exports.handleLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -48,7 +48,6 @@ exports.handleLogin = async (req, res) => {
       email: email,
     },
   });
-  console.log(data);
 
   if (data) {
     const isValidatePw = bcrypt.compareSync(password, data.password);
@@ -57,7 +56,7 @@ exports.handleLogin = async (req, res) => {
         expiresIn: "30d",
       });
       res.cookie("jsonToken", token);
-      res.send("logged in successfully");
+      res.redirect("/");
     } else {
       res.send("invalid credential");
     }

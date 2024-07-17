@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inquisitive</title>
+    <style>
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .card {
+        background-color: #fff;
+        width: 100%;
+        max-width: 600px;
+        margin: 20px 0;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+
+      .card h2 {
+        margin-top: 0;
+      }
+
+      .card p {
+        margin: 10px 0 0;
+      }
+    </style>
+    <link rel="stylesheet" href="/navbar.css" />
+  </head>
+  <body>
+    <%-include("../components/navbar")%>
+    <div class="container">
+      <h1>Questions:</h1>
+      <div class="card">
+        <h2><%-data[0].title%></h2>
+        <p><%-data[0].description%></p>
+        <img
+          src="http://localhost:3000/<%-data[0].image%>"
+          alt="question image"
+          height="400px"
+          width="400px"
+        /><br />
+        <i>Author:<%-data[0].userInfo.userName%></i><br />
+        <p>Created At:<%-new Date(data[0].createdAt).toLocaleDateString()%></p>
+      </div>
+      <h1>Answers:</h1>
+      <div class="answer">
+        <%answerData.forEach((data)=>{%>
+        <div class="card">
+          <p><%-data.answerText%></p>
+
+          <i>Author:<%-data.userInfo.userName%></i><br />
+          <p>Replied At:<%-new Date(data.createdAt).toLocaleDateString()%></p>
+
+          <% })%>
+        </div>
+      </div>
+
+      <div class="answerSection">
+        <form action="/answer/<%-data[0].id%>" method="post">
+          <textarea name="answer" cols="100" row="80"></textarea> <br />
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

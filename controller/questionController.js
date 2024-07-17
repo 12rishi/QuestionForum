@@ -1,4 +1,4 @@
-const { questions, userinfos } = require("../model");
+const { questions, userinfos, answers } = require("../model");
 exports.renderQuestionPage = (req, res) => {
   res.render("./questions/askQuestion");
 };
@@ -26,4 +26,30 @@ exports.getAllQuestion = async (req, res) => {
       },
     ],
   });
+};
+exports.renderSingleQuestionPage = async (req, res) => {
+  const { id } = req.params;
+  const data = await questions.findAll({
+    where: {
+      id: id,
+    },
+    include: [
+      {
+        model: userinfos,
+        attributes: ["userName"],
+      },
+    ],
+  });
+  const answerData = await answers.findAll({
+    where: {
+      questionId: id,
+    },
+    include: [
+      {
+        model: userinfos,
+        attributes: ["userName"],
+      },
+    ],
+  });
+  res.render("./questions/singleQuestion.ejs", { data, answerData });
 };
