@@ -75,7 +75,7 @@ exports.handleForgotPassword = async (req, res) => {
       email: email,
     },
   });
-  if (validateEmail.lenth === 0)
+  if (validateEmail.length === 0)
     return res.send("Provided email is not registered");
   const OTP = Math.floor(1000 + Math.random() * 9000);
 
@@ -111,16 +111,49 @@ exports.handleOtpPage = async (req, res) => {
   } else {
     const currentTime = Date.now();
     const pastTime = userData[0].otpGeneratedTime;
-    if (currentTime - pastTime <= 120000) {
-      userData[0].otp = null;
-      userData[0].otpGeneratedTime = null;
-      await userData[0].save();
-      res.redirect("/changePassword");
+    if (currentTime - pastTime <= 1200000) {
+      res.redirect(`/changePassword?email=${email}&otp=${Otp}`);
     } else {
       res.send("OTP was expired");
     }
   }
 };
 exports.renderChangePassword = (req, res) => {
-  res.render("./auth/changePassword");
+  const { email, otp } = req.query;
+  res.render("./auth/changePassword", { email: email, otp: otp });
+};
+exports.handleChangePassword = async (req, res) => {
+  const { email, otp } = req.params;
+  const { newPassword, confirmPassword } = req.body;
+  if (!email || !otp) {
+    return res.send("provide email,otp");
+  }
+  if (newPassword !== confirmPassword) {
+    return res.send("invalid password");
+  }
+  const data = await userinfos.findAll({
+    where: {
+      email: email,
+    },
+  });
+  const currentTime = Date.now();
+  const pastTime = data[0].otpGeneratedTime;
+  if (currentTime - pastTime <= 1200000) {
+    data[0].otp = null;
+    data[0].otpGeneratedTime = null;
+    await data[0].save();
+    await userinfos.update(
+      {
+        password: bcrypt.hashSync(newPassword, 10),
+      },
+      {
+        where: {
+          email: email,
+        },
+      }
+    );
+    res.redirect("/login");
+  } else {
+    res.send("otp has expired");
+  }
 };

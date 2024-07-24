@@ -8,6 +8,7 @@ const {
   renderOtpPage,
   handleOtpPage,
   renderChangePassword,
+  handleChangePassword,
 } = require("../controller/authController");
 
 const router = require("express").Router();
@@ -20,4 +21,5 @@ router
 router.route("/verifyOtp").get(renderOtpPage);
 router.route("/verifyOtp/:id").post(handleOtpPage);
 router.route("/changePassword").get(renderChangePassword);
+router.route("/changepassword/:email/:otp").post(handleChangePassword);
 module.exports = router;
