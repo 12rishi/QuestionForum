@@ -20,17 +20,21 @@ exports.renderAbout = (req, res) => {
   res.render("about");
 };
 exports.renderRegister = (req, res) => {
-  res.render("./auth/register");
+  const [error] = req.flash("error");
+
+  res.render("./auth/register", { error: error });
 };
 exports.renderLogin = (req, res) => {
-  res.render("./auth/login");
+  const [error] = req.flash("error");
+  res.render("./auth/login", { error: error });
 };
 exports.handleregister = async (req, res) => {
   console.log(req.body);
   const { username, password, email } = req.body;
 
   if (!username || !password || !email) {
-    return res.send("Oops!Something is missing");
+    req.flash("error", "Oops!somthing is missing");
+    res.redirect("/register");
   }
   await userinfos.create({
     userName: username,
@@ -42,7 +46,8 @@ exports.handleregister = async (req, res) => {
 exports.handleLogin = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.send("Oops! something is missing ");
+    req.flash("error", "Oops!somthing is missing");
+    res.redirect("/login");
   }
   const [data] = await userinfos.findAll({
     where: {
@@ -59,14 +64,17 @@ exports.handleLogin = async (req, res) => {
       res.cookie("jsonToken", token);
       res.redirect("/");
     } else {
-      res.send("invalid credential");
+      req.flash("error", "invalid credential");
+      res.redirect("/login");
     }
   } else {
-    return res.send("invalid credential");
+    req.flash("error", "invalid credential");
+    res.redirect("/login");
   }
 };
 exports.renderForgotpasswordPage = (req, res) => {
-  res.render("./auth/forgotPassword");
+  const [error] = req.flash("error");
+  res.render("./auth/forgotPassword", { error: error });
 };
 exports.handleForgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -75,8 +83,11 @@ exports.handleForgotPassword = async (req, res) => {
       email: email,
     },
   });
-  if (validateEmail.length === 0)
-    return res.send("Provided email is not registered");
+  if (validateEmail.length === 0) {
+    req.flash("error", "Provided email is not registered");
+    res.redirect("/forgotPassword");
+  }
+
   const OTP = Math.floor(1000 + Math.random() * 9000);
 
   const data = {
@@ -92,7 +103,8 @@ exports.handleForgotPassword = async (req, res) => {
 };
 exports.renderOtpPage = (req, res) => {
   const email = req.query.email;
-  res.render("./auth/verifyOtp", { email: email });
+  const [error] = req.flash("error");
+  res.render("./auth/verifyOtp", { email: email, error: error });
 };
 exports.handleOtpPage = async (req, res) => {
   const { Otp } = req.body;
@@ -107,29 +119,34 @@ exports.handleOtpPage = async (req, res) => {
     },
   });
   if (userData.length === 0) {
-    return res.send("Invalid OTP");
+    req.flash("error", "Invalid OTP");
+    res.redirect("/verifyOtp");
   } else {
     const currentTime = Date.now();
     const pastTime = userData[0].otpGeneratedTime;
     if (currentTime - pastTime <= 1200000) {
       res.redirect(`/changePassword?email=${email}&otp=${Otp}`);
     } else {
-      res.send("OTP was expired");
+      req.flash("error", "OTP was expired");
+      res.redirect("/verifyOtp");
     }
   }
 };
 exports.renderChangePassword = (req, res) => {
   const { email, otp } = req.query;
-  res.render("./auth/changePassword", { email: email, otp: otp });
+  const [error] = req.flash("error");
+  res.render("./auth/changePassword", { email: email, otp: otp, error: error });
 };
 exports.handleChangePassword = async (req, res) => {
   const { email, otp } = req.params;
   const { newPassword, confirmPassword } = req.body;
   if (!email || !otp) {
-    return res.send("provide email,otp");
+    req.flash("error", "provide email,otp");
+    res.redirect("/changePassword");
   }
   if (newPassword !== confirmPassword) {
-    return res.send("invalid password");
+    req.flash("error", "invalid password");
+    res.redirect("/changePassword");
   }
   const data = await userinfos.findAll({
     where: {
@@ -154,6 +171,7 @@ exports.handleChangePassword = async (req, res) => {
     );
     res.redirect("/login");
   } else {
-    res.send("otp has expired");
+    req.flash("error", "OTP was expired");
+    res.redirect("/changePassword");
   }
 };

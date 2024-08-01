@@ -1,6 +1,7 @@
 const { questions, userinfos, answers } = require("../model");
 exports.renderQuestionPage = (req, res) => {
-  res.render("./questions/askQuestion");
+  const [error] = req.flash("error");
+  res.render("./questions/askQuestion", { error: error });
 };
 
 exports.askQuestion = async (req, res) => {
@@ -8,7 +9,8 @@ exports.askQuestion = async (req, res) => {
   const image = req.file.filename;
   const userInfoId = req.userInfoId;
   if (!title || !description) {
-    res.send("please provide all the credentials");
+    req.flash("error", "please provide all the ceredentials");
+    res.redirect("/askQuestion");
   }
   await questions.create({
     title,

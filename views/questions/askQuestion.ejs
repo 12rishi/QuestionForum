@@ -10,6 +10,7 @@
     <%-include("../components/navbar")%>
 
     <form action="/askquestion" method="post" enctype="multipart/form-data">
+      <p style="color: red"><%-error%></p>
       <input type="text" name="title" placeholder="Enter the title  " />
       <input type="file" name="image" />
       <textarea

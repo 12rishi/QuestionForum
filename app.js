@@ -5,13 +5,22 @@ const questionRouter = require("./routes/questionRoute");
 const answerRouter = require("./routes/answerRoute");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const flash = require("connect-flash");
+const session = require("express-session");
 const { promisify } = require("util");
 
 app.use(express.urlencoded({ extended: true }));
 require("./model/index");
 app.set("view engine", "ejs"); //automatically point to the views folder so we dont write views/home.ejs ,we simply write home or home.ejs
 app.use(cookieParser());
-
+app.use(flash());
+app.use(
+  session({
+    secret: "keyboardcat",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 const { renderHome, renderAbout } = require("./controller/authController");
 app.use(async (req, res, next) => {
   try {

@@ -10,16 +10,22 @@ const {
   renderChangePassword,
   handleChangePassword,
 } = require("../controller/authController");
+const catchError = require("../utils/catchError");
 
 const router = require("express").Router();
-router.route("/register").post(handleregister).get(renderRegister);
+router
+  .route("/register")
+  .post(catchError(handleregister))
+  .get(catchError(renderRegister));
 router.route("/login").post(handleLogin).get(renderLogin);
 router
   .route("/forgotPassword")
-  .get(renderForgotpasswordPage)
-  .post(handleForgotPassword);
-router.route("/verifyOtp").get(renderOtpPage);
-router.route("/verifyOtp/:id").post(handleOtpPage);
-router.route("/changePassword").get(renderChangePassword);
-router.route("/changepassword/:email/:otp").post(handleChangePassword);
+  .get(catchError(renderForgotpasswordPage))
+  .post(catchError(handleForgotPassword));
+router.route("/verifyOtp").get(catchError(renderOtpPage));
+router.route("/verifyOtp/:id").post(catchError(handleOtpPage));
+router.route("/changePassword").get(catchError(renderChangePassword));
+router
+  .route("/changepassword/:email/:otp")
+  .post(catchError(handleChangePassword));
 module.exports = router;

@@ -10,6 +10,7 @@
     <%-include("../components/navbar")%>
 
     <form action="/register" method="post">
+      <p style="color: red"><%-error%></p>
       <input type="text" name="username" placeholder="Username" />
       <input type="email" name="email" placeholder="Email" />
       <input type="password" name="password" placeholder="Password" />
