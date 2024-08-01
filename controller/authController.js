@@ -175,3 +175,7 @@ exports.handleChangePassword = async (req, res) => {
     res.redirect("/changePassword");
   }
 };
+exports.renderLogout = (req, res) => {
+  res.clearCookie("jsonToken");
+  res.redirect("/login");
+};

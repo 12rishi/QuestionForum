@@ -9,6 +9,7 @@ const {
   handleOtpPage,
   renderChangePassword,
   handleChangePassword,
+  renderLogout,
 } = require("../controller/authController");
 const catchError = require("../utils/catchError");
 
@@ -28,4 +29,5 @@ router.route("/changePassword").get(catchError(renderChangePassword));
 router
   .route("/changepassword/:email/:otp")
   .post(catchError(handleChangePassword));
+router.route("/logout").get(catchError(renderLogout));
 module.exports = router;
