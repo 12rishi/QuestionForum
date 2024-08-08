@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const flash = require("connect-flash");
 const session = require("express-session");
 const { promisify } = require("util");
+const socketio = require("socket.io");
 
 app.use(express.urlencoded({ extended: true }));
 require("./model/index");
@@ -22,6 +23,8 @@ app.use(
   })
 );
 const { renderHome, renderAbout } = require("./controller/authController");
+const { answers, sequelize } = require("./model/index");
+const { QueryTypes } = require("sequelize");
 app.use(async (req, res, next) => {
   try {
     const token = req.cookies.jsonToken;
@@ -47,6 +50,45 @@ app.use("/answer", answerRouter);
 app.use(express.static("public/css/"));
 app.use(express.static("./storage/"));
 const PORT = 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`server has started at port no ${PORT} `);
+});
+const io = socketio(server, {
+  cors: {
+    origin: "*",
+  },
+});
+io.on("connection", (socket) => {
+  socket.on("likes", async ({ id, cookie }) => {
+    const answer = await answers.findByPk(id);
+
+    if (answer && cookie) {
+      const decryptedResult = await promisify(jwt.verify)(
+        cookie,
+        "codingIsFun"
+      );
+
+      if (decryptedResult) {
+        const user = await sequelize.query(
+          `SELECT * FROM likes_${id} WHERE userinfoId=${decryptedResult.id}`,
+          {
+            type: QueryTypes.SELECT,
+          }
+        );
+        if (user.length === 0) {
+          await sequelize.query(
+            `INSERT INTO likes_${id} (userinfoId) VALUES(${decryptedResult.id})`,
+            {
+              type: QueryTypes.INSERT,
+            }
+          );
+        }
+      }
+      const likes = await sequelize.query(`SELECT * FROM likes_${id}`, {
+        type: QueryTypes.SELECT,
+      });
+      const likesCount = likes.length;
+      socket.emit("likeUpdate", { likesCount, id });
+    }
+  });
 });

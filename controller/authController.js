@@ -142,11 +142,11 @@ exports.handleChangePassword = async (req, res) => {
   const { newPassword, confirmPassword } = req.body;
   if (!email || !otp) {
     req.flash("error", "provide email,otp");
-    res.redirect("/changePassword");
+    return res.redirect("/changePassword");
   }
   if (newPassword !== confirmPassword) {
     req.flash("error", "invalid password");
-    res.redirect("/changePassword");
+    return res.redirect(`/changePassword?email=${email}&otp=${otp}`);
   }
   const data = await userinfos.findAll({
     where: {
